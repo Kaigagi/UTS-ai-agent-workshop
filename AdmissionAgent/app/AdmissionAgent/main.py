@@ -2,10 +2,11 @@ import logging
 import os
 
 from strands import Agent
+from strands.agent.conversation_manager import SlidingWindowConversationManager
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from model.load import load_model
-from strands_tools import retrieve
-from tools.query_student_db import query_student_db
+from agents.admission import route_to_admission
+from agents.advisor_requests import route_to_advisor_requests
 from memory.session import get_session_manager
 
 logging.basicConfig(level=logging.INFO)
@@ -16,28 +17,29 @@ os.environ["STRANDS_KNOWLEDGE_BASE_ID"] = os.environ.get("KNOWLEDGE_BASE_ID", ""
 app = BedrockAgentCoreApp()
 log = app.logger
 
-SYSTEM_PROMPT = """You are Alex, the University Admission Advisor. Introduce yourself as Alex
-when starting a conversation.
+SYSTEM_PROMPT = """You are the Student Services Orchestrator. Your role is to analyse student queries
+and route them to the right specialist agent.
 
-Use the retrieve tool to search the course handbook Knowledge Base when answering questions about
-courses, programs, prerequisites, enrolment policies, and degree requirements.
+When a student identifies themselves (provides a student ID), remember it and pass it along
+to the specialist agents.
 
-Use the query_student_db tool to look up real student records, course registrations, degree plans,
-and academic outcomes by running SQL queries against the education_workshop_db database. When a
-student provides their ID, query the student table to greet them by name and understand their
-academic status. You can also query course_registration, course_outcome, degree_plan, and other
-tables to give personalised advice.
+Routing rules:
+- **Information lookups** → route_to_admission: course discovery, prerequisites, enrolment policies,
+  degree requirements, program information, student record queries, academic progress checks.
+- **Action requests** → route_to_advisor_requests: course overrides, advisor meeting requests,
+  program changes, special consideration applications, or any request that requires formal submission.
 
-Be helpful, accurate, and encouraging. Always base your answers on information retrieved from the
-database and Knowledge Base rather than making assumptions."""
+Always pass the student_id parameter if the student has identified themselves.
+Summarise the specialist's response clearly for the student. Do not attempt to answer
+academic questions directly — always delegate to the appropriate specialist."""
 
-tools = [retrieve, query_student_db]
+tools = [route_to_admission, route_to_advisor_requests]
 model = load_model()
 
 
 @app.entrypoint
 async def invoke(payload, context):
-    log.info("Invoking Agent.....")
+    log.info("Invoking Orchestrator Agent.....")
 
     session_id = payload.get("session_id", "default-session")
     actor_id = payload.get("actor_id", "default-actor")
@@ -52,6 +54,7 @@ async def invoke(payload, context):
         model=model,
         system_prompt=SYSTEM_PROMPT,
         tools=tools,
+        conversation_manager=SlidingWindowConversationManager(window_size=40),
         **({"session_manager": session_manager} if session_manager else {}),
     )
 

@@ -15,6 +15,15 @@
             "memoryArn": "arn:aws:bedrock-agentcore:us-east-1:463470941747:memory/AdmissionAgent_admission_agent_memory-NAh2r2A7F7"
           }
         },
+        "mcp": {
+          "gateways": {
+            "education-advisor-gateway": {
+              "gatewayId": "admissionagent-education-advisor-gateway-wutrl7bgbo",
+              "gatewayArn": "arn:aws:bedrock-agentcore:us-east-1:463470941747:gateway/admissionagent-education-advisor-gateway-wutrl7bgbo",
+              "gatewayUrl": "https://admissionagent-education-advisor-gateway-wutrl7bgbo.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp"
+            }
+          }
+        },
         "stackName": "AgentCore-AdmissionAgent-default"
       }
     }
