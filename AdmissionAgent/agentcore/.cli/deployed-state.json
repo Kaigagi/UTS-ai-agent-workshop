@@ -1,0 +1,22 @@
+{
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "AdmissionAgent": {
+            "runtimeId": "AdmissionAgent_AdmissionAgent-NyJl4w6skX",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-east-1:463470941747:runtime/AdmissionAgent_AdmissionAgent-NyJl4w6skX",
+            "roleArn": "arn:aws:iam::463470941747:role/agentcore-agent-role"
+          }
+        },
+        "memories": {
+          "admission_agent_memory": {
+            "memoryId": "AdmissionAgent_admission_agent_memory-NAh2r2A7F7",
+            "memoryArn": "arn:aws:bedrock-agentcore:us-east-1:463470941747:memory/AdmissionAgent_admission_agent_memory-NAh2r2A7F7"
+          }
+        },
+        "stackName": "AgentCore-AdmissionAgent-default"
+      }
+    }
+  }
+}
